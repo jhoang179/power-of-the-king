@@ -89,6 +89,14 @@ h2 { margin-bottom: 0; font-size: 1.3rem; letter-spacing: -.035em; }
 .snapchat-panel p { margin-bottom: 0; }
 .snapchat-panel .eyebrow { margin-bottom: 4px; color: var(--yellow); }
 #selection-status { color: #d5ddd5; font-size: 13px; }
+.interest-meter { display: flex; gap: 5px; margin-top: 12px; }
+.interest-meter span { width: 38px; height: 6px; background: rgba(213, 221, 213, .28); }
+.interest-meter span.active { background: var(--yellow); }
+.interest-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; flex: 1; }
+.interest-actions[hidden] { display: none; }
+.interest-action { padding: 9px 8px; border: 1px solid rgba(213, 221, 213, .45); color: #f9f6ed; background: transparent; cursor: pointer; font-size: 11px; }
+.interest-action:hover:not(:disabled), .interest-action:focus-visible:not(:disabled) { border-color: var(--yellow); color: var(--yellow); }
+.interest-action:disabled { cursor: not-allowed; opacity: .35; }
 .snapchat-button { flex: 0 0 auto; padding: 12px 15px; border: 0; color: var(--ink); background: var(--yellow); cursor: pointer; font-size: 12px; font-weight: 600; }
 .snapchat-button:hover:not(:disabled), .snapchat-button:focus-visible:not(:disabled) { background: #f6d979; }
 .snapchat-button:disabled { cursor: not-allowed; opacity: .42; }
@@ -150,6 +158,7 @@ h2 { margin-bottom: 0; font-size: 1.3rem; letter-spacing: -.035em; }
   .scoreboard { grid-template-columns: repeat(2, 1fr); gap: 14px 8px; padding: 14px; }
   .prospects { grid-template-columns: 1fr; }
   .snapchat-panel { align-items: stretch; flex-direction: column; gap: 12px; }
+  .interest-actions { grid-template-columns: 1fr; }
   .snapchat-button { width: 100%; }
   .talking-card { grid-template-columns: 45px 1fr; }
   .interest-button { grid-column: 1 / -1; width: 100%; }

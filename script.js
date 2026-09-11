@@ -22,7 +22,7 @@ const venues = {
     description: 'A bright neighborhood spot where conversation comes easy.',
     prospects: [
       { id: 'sierra', name: 'Sierra', detail: 'Insurance Agent · never been rejected', style: 'sage' },
-      { id: 'leah', name: 'Leah', detail: 'HR · home body', style: 'blue' }
+      { id: 'ashley', name: 'Ashley', detail: 'HR · home body', style: 'blue' }
     ]
   },
   arcade: {
@@ -43,6 +43,15 @@ const venues = {
   }
 };
 
+const replacementNames = ['Camille', 'Dani', 'Erin', 'Jade', 'Kenzie', 'Morgan', 'Riley', 'Taylor', 'Valerie', 'Whitney'];
+const replacementDetails = [
+  'Creative · always has a story',
+  'Designer · quick with a comeback',
+  'Researcher · notices the little things',
+  'Entrepreneur · impossible to bore',
+  'Photographer · sees the room differently'
+];
+
 const defaultState = {
   statsVersion: 3,
   originComplete: false,
@@ -52,6 +61,11 @@ const defaultState = {
   upgradePoints: 3,
   seanStolen: 0,
   talking: [],
+  interactions: {},
+  retiredProspects: [],
+  replacementIndex: 0,
+  roster: structuredClone(venues),
+  prospectDirectory: Object.fromEntries(Object.values(venues).flatMap((venue) => venue.prospects).map((prospect) => [prospect.id, prospect])),
   attributes: { jawline: 1, abs: 1, technique: 1 },
   log: [
     '<strong>Origin:</strong> Dylan makes a move. Sean gets there first.',
@@ -84,6 +98,8 @@ const elements = {
   venueDescription: document.querySelector('#venue-description'),
   prospects: document.querySelector('#prospects'),
   selectionStatus: document.querySelector('#selection-status'),
+  interestMeter: document.querySelector('#interest-meter'),
+  interestActions: document.querySelector('#interest-actions'),
   snapchatButton: document.querySelector('#snapchat-button'),
   talkingList: document.querySelector('#talking-list')
 };
@@ -100,6 +116,11 @@ function loadState() {
       snapchats: savedState.snapchats ?? 0,
       bodies: savedState.bodies ?? savedState.connections ?? 0,
       talking: Array.isArray(savedState.talking) ? savedState.talking : [],
+      interactions: savedState.interactions ?? {},
+      retiredProspects: Array.isArray(savedState.retiredProspects) ? savedState.retiredProspects : [],
+      replacementIndex: savedState.replacementIndex ?? 0,
+      roster: savedState.roster ?? structuredClone(venues),
+      prospectDirectory: savedState.prospectDirectory ?? defaultState.prospectDirectory,
       attributes: { ...defaultState.attributes, ...savedState.attributes }
     };
     if (savedState.statsVersion !== defaultState.statsVersion) loadedState.attributes = { ...defaultState.attributes };
@@ -111,6 +132,47 @@ function loadState() {
 
 function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function findProspect(prospectId) {
+  return state.prospectDirectory[prospectId];
+}
+
+function findVenueForProspect(prospectId) {
+  return Object.entries(state.roster).find(([, venue]) => venue.prospects.some((prospect) => prospect.id === prospectId));
+}
+
+function createReplacement() {
+  const occupiedNames = Object.values(state.prospectDirectory).map((prospect) => prospect.name);
+  const availableNames = replacementNames.filter((name) => !occupiedNames.includes(name));
+  const name = availableNames[Math.floor(Math.random() * availableNames.length)] || `New Prospect ${state.replacementIndex + 1}`;
+  const id = `${name.toLowerCase().replaceAll(' ', '-')}-${state.replacementIndex}`;
+  const replacement = {
+    id,
+    name,
+    detail: replacementDetails[Math.floor(Math.random() * replacementDetails.length)],
+    style: ['coral', 'yellow', 'sage', 'blue'][Math.floor(Math.random() * 4)]
+  };
+  state.replacementIndex += 1;
+  state.prospectDirectory[id] = replacement;
+  return replacement;
+}
+
+function rotateProspect(prospectId) {
+  const venueEntry = findVenueForProspect(prospectId);
+  if (!venueEntry) return null;
+  const [venueKey, venue] = venueEntry;
+  venue.prospects = venue.prospects.filter((prospect) => prospect.id !== prospectId);
+  state.retiredProspects.push(prospectId);
+  delete state.interactions[prospectId];
+  const replacement = createReplacement();
+  state.roster[venueKey].prospects.push(replacement);
+  return replacement;
+}
+
+function getInteraction(prospectId) {
+  if (!state.interactions[prospectId]) state.interactions[prospectId] = { interest: 0, used: [] };
+  return state.interactions[prospectId];
 }
 
 function render() {
@@ -148,14 +210,24 @@ function render() {
   elements.bodies.textContent = state.bodies;
   elements.seanStolen.textContent = state.seanStolen;
   elements.upgradePoints.textContent = state.upgradePoints;
-  const venue = venues[selectedLocation];
+  const venue = state.roster[selectedLocation];
   elements.venueName.textContent = venue.name;
   elements.venueDescription.textContent = venue.description;
   elements.prospects.innerHTML = venue.prospects.map((prospect) => `<button class="prospect ${selectedProspect === prospect.id ? 'selected' : ''}" data-prospect="${prospect.id}" type="button"><span class="prospect-avatar ${prospect.style}" aria-hidden="true">${prospect.name[0]}</span><span><strong>${prospect.name}</strong><small>${prospect.detail}</small></span><span class="prospect-arrow" aria-hidden="true">→</span></button>`).join('');
-  elements.snapchatButton.disabled = !selectedProspect;
-  const talkingProspects = state.talking.map((id) => Object.values(venues).flatMap((item) => item.prospects).find((prospect) => prospect.id === id)).filter(Boolean);
+  const interaction = selectedProspect ? getInteraction(selectedProspect) : null;
+  const interest = interaction?.interest || 0;
+  elements.interestMeter.innerHTML = Array.from({ length: 3 }, (_, index) => `<span class="${index < interest ? 'active' : ''}"></span>`).join('');
+  elements.interestActions.hidden = !selectedProspect || interest >= 3;
+  elements.interestActions.querySelectorAll('[data-action]').forEach((button) => {
+    button.disabled = !selectedProspect || interest >= 3 || interaction.used.includes(button.dataset.action);
+  });
+  elements.snapchatButton.disabled = !selectedProspect || interest < 3;
+  const talkingProspects = state.talking.map((id) => findProspect(id)).filter(Boolean);
   elements.talkingList.innerHTML = talkingProspects.length ? talkingProspects.map((prospect) => `<article class="talking-card"><span class="prospect-avatar ${prospect.style}" aria-hidden="true">${prospect.name[0]}</span><div><strong>${prospect.name}</strong><small>${prospect.detail}</small></div><button class="interest-button" data-interest="${prospect.id}" type="button">Show interest <span aria-hidden="true">↗</span></button></article>`).join('') : '<p class="talking-empty">No one is in the talking phase yet. Ask for a Snapchat to start something.</p>';
   document.querySelectorAll('[data-location]').forEach((button) => button.classList.toggle('active', button.dataset.location === selectedLocation));
+  elements.selectionStatus.textContent = selectedProspect
+    ? interest >= 3 ? 'Interest is full. Ask for her Snapchat.' : `Build interest: ${interest}/3`
+    : 'Choose someone to approach.';
   elements.attributes.innerHTML = renderAttributes(state.attributes, true);
   elements.seanAttributes.innerHTML = renderAttributes(seanAttributes, false);
   elements.eventLog.innerHTML = state.log.map((entry) => `<li>${entry}</li>`).join('');
@@ -188,17 +260,38 @@ function rollSuccess(score, threshold, spread) {
   return Math.random() < successChance;
 }
 
+const interactionDetails = {
+  question: 'Dylan asks a thoughtful question and keeps the conversation moving.',
+  humor: 'Dylan finds a shared joke and gets her laughing.',
+  confidence: 'Dylan brings confident energy without forcing the moment.'
+};
+
+function takeInterestAction(action) {
+  if (!selectedProspect || !interactionDetails[action]) return;
+  const interaction = getInteraction(selectedProspect);
+  if (interaction.used.includes(action) || interaction.interest >= 3) return;
+  interaction.used.push(action);
+  interaction.interest += 1;
+  addLog(`<strong>${findProspect(selectedProspect).name}:</strong> ${interactionDetails[action]}`);
+  render();
+  saveState();
+}
+
 function askForSnapchat() {
-  const prospect = Object.values(venues).flatMap((venue) => venue.prospects).find((item) => item.id === selectedProspect);
+  const prospect = findProspect(selectedProspect);
+  const interaction = getInteraction(selectedProspect);
+  if (!prospect || interaction.interest < 3) return;
   const score = Object.values(state.attributes).reduce((total, value) => total + value, 0) / 3;
   const success = rollSuccess(score, 4.5, 3);
 
   if (success) {
     if (!state.talking.includes(prospect.id)) state.talking.push(prospect.id);
     state.snapchats += 1;
-    addLog(`<strong>Snapchat secured:</strong> ${prospect.name} is now in the talking phase. Sean has not noticed yet.`, 'good');
+    const replacement = rotateProspect(prospect.id);
+    addLog(`<strong>Snapchat secured:</strong> ${prospect.name} is now in the talking phase. ${replacement.name} takes her place on the map.`, 'good');
   } else {
-    addLog(`<strong>No Snapchat:</strong> ${prospect.name} is not feeling the approach. Try a different person or upgrade Dylan.`, 'bad');
+    const replacement = rotateProspect(prospect.id);
+    addLog(`<strong>No Snapchat:</strong> ${prospect.name} is not feeling the approach. ${replacement.name} takes her place.`, 'bad');
   }
   selectedProspect = null;
   render();
@@ -206,7 +299,7 @@ function askForSnapchat() {
 }
 
 function showInterest(prospectId) {
-  const prospect = Object.values(venues).flatMap((venue) => venue.prospects).find((item) => item.id === prospectId);
+  const prospect = findProspect(prospectId);
   if (!prospect || !state.talking.includes(prospectId)) return;
   const averageAttribute = Object.values(state.attributes).reduce((total, value) => total + value, 0) / 3;
   const score = averageAttribute;
@@ -217,10 +310,12 @@ function showInterest(prospectId) {
   if (success) {
     state.bodies += 1;
     state.upgradePoints += 1;
-    addLog(`<strong>Body secured:</strong> ${prospect.name} chooses to keep seeing you. You earn an upgrade point.`, 'good');
+    const replacement = rotateProspect(prospect.id);
+    addLog(`<strong>Body secured:</strong> ${prospect.name} chooses to keep seeing you. ${replacement.name} takes her place on the map.`, 'good');
   } else {
     state.seanStolen += 1;
-    addLog(`<strong>Sean gets there first:</strong> He steals ${prospect.name} after you show interest.`, 'bad');
+    const replacement = rotateProspect(prospect.id);
+    addLog(`<strong>Sean gets there first:</strong> He steals ${prospect.name} after you show interest. ${replacement.name} takes her place.`, 'bad');
   }
   render();
   saveState();
@@ -256,9 +351,14 @@ elements.prospects.addEventListener('click', (event) => {
   const prospect = event.target.closest('[data-prospect]');
   if (!prospect) return;
   selectedProspect = prospect.dataset.prospect;
-  const selected = venues[selectedLocation].prospects.find((item) => item.id === selectedProspect);
+  const selected = findProspect(selectedProspect);
   elements.selectionStatus.textContent = `${selected.name} looks interesting. Ask for her Snapchat?`;
   render();
+});
+
+elements.interestActions.addEventListener('click', (event) => {
+  const button = event.target.closest('[data-action]');
+  if (button) takeInterestAction(button.dataset.action);
 });
 
 elements.snapchatButton.addEventListener('click', askForSnapchat);
