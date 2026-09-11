@@ -11,7 +11,7 @@ const seanAttributes = { jawline: 10, abs: 10, technique: 9 };
 const venues = {
   houseParty: {
     name: 'House Party',
-    description: 'Music, city lights, and a loose circle of new people.',
+    description: 'A packed living room, loud music, and just enough chaos for a memorable introduction.',
     prospects: [
       { id: 'hannah', name: 'Hannah', detail: 'PHD Student · affinity for the arts', style: 'coral' },
       { id: 'leah s', name: 'Leah S', detail: 'Nurse · intelligence of a pig', style: 'yellow' }
@@ -19,7 +19,7 @@ const venues = {
   },
   elicit: {
     name: 'Elicit',
-    description: 'A bright neighborhood spot where conversation comes easy.',
+    description: 'A bar where the bass is heavy, the lights are low, and confidence goes a long way.',
     prospects: [
       { id: 'j han', name: 'J Han', detail: 'Highschool Student · loves iced coffee', style: 'blue' },
       { id: 'j fran', name: 'J Fran', detail: 'Highschool Student · inspired the classic "Donkey Kong Love Song"', style: 'coral' }
@@ -27,7 +27,7 @@ const venues = {
   },
   oakStreet: {
     name: 'Oak Street',
-    description: 'Friendly competition, loud games, and instant icebreakers.',
+    description: 'A worn-in dive bar with cheap drinks, loud regulars, and plenty of easy openings.',
     prospects: [
       { id: 'sierra', name: 'Sierra', detail: 'Insurance Agent · never been rejected', style: 'sage' },
       { id: 'leah', name: 'Leah', detail: 'HR · home body', style: 'blue' }
@@ -35,7 +35,7 @@ const venues = {
   },
   coEdSoccer: {
     name: 'Co-Ed Soccer',
-    description: 'A quiet opening full of strange art and strong opinions.',
+    description: 'A casual co-ed soccer league where friendly competition turns teammates into conversation partners.',
     prospects: [
       { id: 'ava', name: 'Ava', detail: 'Curator · asks thoughtful questions', style: 'yellow' },
       { id: 'brooke', name: 'Brooke', detail: 'Illustrator · loves bold ideas', style: 'sage' }
