@@ -322,7 +322,7 @@ function askForSnapchat() {
   const interaction = getInteraction(selectedProspect);
   if (!prospect || interaction.used.length < 3) return;
   const successfulActions = Object.values(interaction.actionResults).filter(Boolean).length;
-  const snapchatChances = [0.2, 0.42, 0.68, 0.9];
+  const snapchatChances = [0.2, 0.33, 0.5, 0.75];
   const success = Math.random() < Math.min(1, snapchatChances[successfulActions] * (state.attributes.technique === 10 ? 2 : 1));
 
   if (success) {
