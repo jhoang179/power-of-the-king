@@ -159,10 +159,13 @@ function renderAttributes(attributes, canUpgrade) {
     const maximum = canUpgrade && key !== 'technique' ? 9 : 10;
     const segments = Array.from({ length: maximum }, (_, index) => `<i class="${index < value ? 'active' : ''}"></i>`).join('');
     const upgradeButton = canUpgrade ? `<button class="upgrade-button" data-attribute="${key}" type="button" ${state.upgradePoints === 0 || value >= maximum ? 'disabled' : ''}>Upgrade +1</button>` : '<span class="locked-stat">Locked</span>';
-    const abilityNote = canUpgrade && key === 'technique'
-      ? `<p class="ability-note"><strong>${value === 10 ? 'Dyl Trance unlocked.' : 'Dyl Trance Ability:'}</strong> ${value === 10 ? 'Your success rate in Snapchat and Talking is doubled.' : 'When unlocked, it doubles your success rate asking for a Snapchat and showing interest in a Talking Stage. Unlocks at 10/10 Pulling Technique.'}</p>`
+    const limitNote = canUpgrade && (key === 'jawline' || key === 'abs')
+      ? `<div class="ability-note"><strong>${detail.label} Limit</strong><ul><li>Dylan cannot reach 10/10.</li><li>Sean's ${detail.label} ${key === 'abs' ? 'are' : 'is'} out of this world.</li></ul></div>`
       : '';
-    return `<article class="attribute"><div class="attribute-top"><span class="attribute-name">${detail.label}</span><span class="attribute-value">${value}/${maximum}</span></div><div class="meter" aria-label="${detail.label}: ${value} out of ${maximum}">${segments}</div>${upgradeButton}${abilityNote}</article>`;
+    const abilityNote = canUpgrade && key === 'technique'
+      ? `<div class="ability-note"><strong>${value === 10 ? 'Dyl Trance unlocked.' : 'Dyl Trance Ability:'}</strong><ul><li>When unlocked, it doubles your success rate asking for a Snapchat and showing interest in a Talking Stage.</li><li>Unlocks at 10/10 Pulling Technique.</li></ul></div>`
+      : '';
+    return `<article class="attribute"><div class="attribute-top"><span class="attribute-name">${detail.label}</span><span class="attribute-value">${value}/${maximum}</span></div><div class="meter" aria-label="${detail.label}: ${value} out of ${maximum}">${segments}</div>${upgradeButton}${limitNote}${abilityNote}</article>`;
   }).join('');
 }
 
