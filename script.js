@@ -284,12 +284,6 @@ function addLog(message, tone = '') {
   state.log = state.log.slice(0, 5);
 }
 
-function rollSuccess(score, threshold, spread) {
-  const baseChance = Math.min(1, Math.max(0, (score + spread - threshold) / spread));
-  const successChance = state.attributes.technique === 10 ? Math.min(1, baseChance * 2) : baseChance;
-  return Math.random() < successChance;
-}
-
 const interactionDetails = {
   jawline: { success: 'Dylan introduces himself with a very strong first impression.', failure: 'Dylan introduces himself, but the first impression does not quite land.', hint: 'If only his jawline was more chiseled...' },
   abs: { success: 'Dylan asks a thoughtful question, showing off his deep side.', failure: 'Dylan asks a thoughtful question, but it comes across a little forced.', hint: 'If only his abs were harder...' },
@@ -344,9 +338,8 @@ function showInterest(prospectId) {
   const prospect = findProspect(prospectId);
   if (!prospect || !state.talking.includes(prospectId)) return;
   const averageAttribute = Object.values(state.attributes).reduce((total, value) => total + value, 0) / 3;
-  const score = averageAttribute;
-  const seanPressure = 4 + Math.max(0, 5 - averageAttribute) * 1.2 + Math.random() * 2.5;
-  const success = rollSuccess(score, seanPressure, 2.5);
+  const inviteChance = Math.min(0.95, Math.max(0.15, averageAttribute / 9));
+  const success = Math.random() < Math.min(1, inviteChance * (state.attributes.technique === 10 ? 2 : 1));
 
   state.talking = state.talking.filter((id) => id !== prospectId);
   if (success) {
