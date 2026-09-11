@@ -315,7 +315,7 @@ function showInterest(prospectId) {
   } else {
     state.seanStolen += 1;
     const replacement = rotateProspect(prospect.id);
-    addLog(`<strong>Sean gets there first:</strong> He steals ${prospect.name} after you show interest. ${replacement.name} takes her place.`, 'bad');
+    addLog(`<strong>Sean got his hands all over your sweet ${prospect.name}!</strong> ${replacement.name} takes her place as a prospect.`, 'bad');
   }
   render();
   saveState();
