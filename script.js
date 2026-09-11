@@ -333,12 +333,12 @@ function askForSnapchat() {
   saveState();
 }
 
-function showInterest(prospectId) {
+function inviteOver(prospectId) {
   if (state.bodies > state.seanStolen) return;
   const prospect = findProspect(prospectId);
   if (!prospect || !state.talking.includes(prospectId)) return;
   const averageAttribute = Object.values(state.attributes).reduce((total, value) => total + value, 0) / 3;
-  const inviteChance = Math.min(0.95, Math.max(0.1, averageAttribute / 10));
+  const inviteChance = Math.min(0.95, Math.max(0.08, averageAttribute / 11));
   const success = Math.random() < Math.min(1, inviteChance * (state.attributes.technique === 10 ? 2 : 1));
 
   state.talking = state.talking.filter((id) => id !== prospectId);
