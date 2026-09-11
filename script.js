@@ -197,8 +197,11 @@ function getInteraction(prospectId) {
 }
 
 function render() {
+  const gameWon = state.bodies > state.seanStolen;
   const attributesAtFive = Object.values(state.attributes).every((value) => value >= 5);
-  const rivalStatus = state.attributes.technique === 10
+  const rivalStatus = gameWon
+    ? 'Dylan beat Sean'
+    : state.attributes.technique === 10
     ? 'Sean is worried'
     : attributesAtFive
       ? 'Sean is getting nervous'
@@ -219,14 +222,14 @@ function render() {
     }
   ];
   const originEvent = originEvents[state.originStage] || originEvents[1];
-  elements.eventModal.hidden = state.originComplete;
-  elements.eventModalKicker.textContent = state.originStage < 2 ? 'The origin story' : 'The comeback begins';
-  elements.eventCount.textContent = state.originStage < 2 ? `${state.originStage + 1} / 2` : '2 / 2';
-  elements.eventModalDate.textContent = state.originStage < 2 ? originEvent.date : 'Your turn';
-  elements.eventModalTitle.textContent = state.originStage < 2 ? originEvent.title : 'Sean will rue the day.';
-  elements.eventModalCopy.textContent = state.originStage < 2 ? originEvent.copy : "Sophia and Lexie are gone, but Dylan has had enough. Upgrade Dylan's attributes so this never happens again.";
-  elements.eventModalResult.textContent = state.originStage < 2 ? originEvent.result : 'Get your revenge.';
-  elements.originButton.innerHTML = state.originStage < 2 ? 'See what happens next <span aria-hidden="true">↗</span>' : 'Start Dylan\'s comeback <span aria-hidden="true">↗</span>';
+  elements.eventModal.hidden = state.originComplete && !gameWon;
+  elements.eventModalKicker.textContent = gameWon ? 'Victory' : state.originStage < 2 ? 'The origin story' : 'The comeback begins';
+  elements.eventCount.textContent = gameWon ? `${state.bodies} bodies / ${state.seanStolen} stolen` : state.originStage < 2 ? `${state.originStage + 1} / 2` : '2 / 2';
+  elements.eventModalDate.textContent = gameWon ? 'The rivalry is over' : state.originStage < 2 ? originEvent.date : 'Your turn';
+  elements.eventModalTitle.textContent = gameWon ? 'Dylan comes out on top.' : state.originStage < 2 ? originEvent.title : 'Sean will rue the day.';
+  elements.eventModalCopy.textContent = gameWon ? 'You secured more bodies than Sean stole. Dylan finally wins the rivalry.' : state.originStage < 2 ? originEvent.copy : "Sophia and Lexie are gone, but Dylan has had enough. Upgrade Dylan's attributes so this never happens again.";
+  elements.eventModalResult.textContent = gameWon ? 'Dylan wins.' : state.originStage < 2 ? originEvent.result : 'Get your revenge.';
+  elements.originButton.innerHTML = gameWon ? 'Play again <span aria-hidden="true">↗</span>' : state.originStage < 2 ? 'See what happens next <span aria-hidden="true">↗</span>' : 'Start Dylan\'s comeback <span aria-hidden="true">↗</span>';
   elements.snapchats.textContent = state.snapchats;
   elements.bodies.textContent = state.bodies;
   elements.seanStolen.textContent = state.seanStolen;
@@ -295,7 +298,7 @@ const interactionDetails = {
 
 function takeInterestAction(action) {
   const actionDetails = interactionDetails[action];
-  if (!selectedProspect || !actionDetails) return;
+  if (state.bodies > state.seanStolen || !selectedProspect || !actionDetails) return;
   const interaction = getInteraction(selectedProspect);
   if (interaction.used.includes(action) || interaction.interest >= 3) return;
   interaction.used.push(action);
@@ -313,6 +316,7 @@ function takeInterestAction(action) {
 }
 
 function askForSnapchat() {
+  if (state.bodies > state.seanStolen) return;
   const prospect = findProspect(selectedProspect);
   const interaction = getInteraction(selectedProspect);
   if (!prospect || interaction.used.length < 3) return;
@@ -335,6 +339,7 @@ function askForSnapchat() {
 }
 
 function showInterest(prospectId) {
+  if (state.bodies > state.seanStolen) return;
   const prospect = findProspect(prospectId);
   if (!prospect || !state.talking.includes(prospectId)) return;
   const averageAttribute = Object.values(state.attributes).reduce((total, value) => total + value, 0) / 3;
@@ -359,6 +364,7 @@ function showInterest(prospectId) {
 }
 
 elements.attributes.addEventListener('click', (event) => {
+  if (state.bodies > state.seanStolen) return;
   const button = event.target.closest('[data-attribute]');
   if (!button || state.upgradePoints === 0) return;
   const attribute = button.dataset.attribute;
@@ -377,6 +383,7 @@ elements.attributes.addEventListener('click', (event) => {
 
 document.querySelectorAll('[data-location]').forEach((button) => {
   button.addEventListener('click', () => {
+    if (state.bodies > state.seanStolen) return;
     selectedLocation = button.dataset.location;
     selectedProspect = null;
     elements.selectionStatus.textContent = 'Choose someone to approach.';
@@ -385,6 +392,7 @@ document.querySelectorAll('[data-location]').forEach((button) => {
 });
 
 elements.prospects.addEventListener('click', (event) => {
+  if (state.bodies > state.seanStolen) return;
   const prospect = event.target.closest('[data-prospect]');
   if (!prospect) return;
   selectedProspect = prospect.dataset.prospect;
@@ -406,6 +414,10 @@ elements.talkingList.addEventListener('click', (event) => {
 });
 
 elements.originButton.addEventListener('click', () => {
+  if (state.bodies > state.seanStolen) {
+    resetGame();
+    return;
+  }
   if (state.originStage < 2) {
     state.originStage += 1;
   } else {
@@ -416,12 +428,14 @@ elements.originButton.addEventListener('click', () => {
   saveState();
 });
 
-document.querySelector('#reset-button').addEventListener('click', () => {
+function resetGame() {
   state = structuredClone(defaultState);
   selectedLocation = 'houseParty';
   selectedProspect = null;
   render();
   saveState();
-});
+}
+
+document.querySelector('#reset-button').addEventListener('click', resetGame);
 
 render();
