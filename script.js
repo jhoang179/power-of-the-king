@@ -253,7 +253,7 @@ function render() {
   });
   elements.snapchatButton.disabled = !selectedProspect || interaction.used.length < 3;
   const talkingProspects = state.talking.map((id) => findProspect(id)).filter(Boolean);
-  elements.talkingList.innerHTML = talkingProspects.length ? talkingProspects.map((prospect) => `<article class="talking-card"><span class="prospect-avatar ${prospect.style}" aria-hidden="true">${prospect.name[0]}</span><div><strong>${prospect.name}</strong><small>${prospect.detail}</small></div><button class="interest-button" data-interest="${prospect.id}" type="button">Show interest <span aria-hidden="true">↗</span></button></article>`).join('') : '<p class="talking-empty">No one is in the talking phase yet. Ask for a Snapchat to start something.</p>';
+  elements.talkingList.innerHTML = talkingProspects.length ? talkingProspects.map((prospect) => `<article class="talking-card"><span class="prospect-avatar ${prospect.style}" aria-hidden="true">${prospect.name[0]}</span><div><strong>${prospect.name}</strong><small>${prospect.detail}</small></div><button class="interest-button" data-interest="${prospect.id}" type="button">Invite Over <span aria-hidden="true">↗</span></button></article>`).join('') : '<p class="talking-empty">No one is in the talking phase yet. Ask for a Snapchat to start something.</p>';
   document.querySelectorAll('[data-location]').forEach((button) => button.classList.toggle('active', button.dataset.location === selectedLocation));
   elements.selectionStatus.textContent = selectedProspect
     ? interaction.used.length >= 3 ? `Conversation complete: ${interest}/3 checks passed. Ask for her Snapchat.` : `Build interest: ${interest}/3`
