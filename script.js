@@ -52,6 +52,13 @@ const replacementDetails = [
   'Photographer · sees the room differently'
 ];
 
+function createInitialRoster() {
+  return Object.fromEntries(Object.entries(venues).map(([venueKey, venue]) => [
+    venueKey,
+    { prospects: structuredClone(venue.prospects) }
+  ]));
+}
+
 const defaultState = {
   statsVersion: 3,
   originComplete: false,
@@ -64,7 +71,7 @@ const defaultState = {
   interactions: {},
   retiredProspects: [],
   replacementIndex: 0,
-  roster: structuredClone(venues),
+  roster: createInitialRoster(),
   prospectDirectory: Object.fromEntries(Object.values(venues).flatMap((venue) => venue.prospects).map((prospect) => [prospect.id, prospect])),
   attributes: { jawline: 1, abs: 1, technique: 1 },
   log: [
@@ -119,7 +126,10 @@ function loadState() {
       interactions: savedState.interactions ?? {},
       retiredProspects: Array.isArray(savedState.retiredProspects) ? savedState.retiredProspects : [],
       replacementIndex: savedState.replacementIndex ?? 0,
-      roster: savedState.roster ?? structuredClone(venues),
+      roster: Object.fromEntries(Object.entries(venues).map(([venueKey, venue]) => [
+        venueKey,
+        { prospects: savedState.roster?.[venueKey]?.prospects ?? structuredClone(venue.prospects) }
+      ])),
       prospectDirectory: savedState.prospectDirectory ?? defaultState.prospectDirectory,
       attributes: { ...defaultState.attributes, ...savedState.attributes }
     };
@@ -210,10 +220,11 @@ function render() {
   elements.bodies.textContent = state.bodies;
   elements.seanStolen.textContent = state.seanStolen;
   elements.upgradePoints.textContent = state.upgradePoints;
-  const venue = state.roster[selectedLocation];
+  const venue = venues[selectedLocation];
+  const roster = state.roster[selectedLocation];
   elements.venueName.textContent = venue.name;
   elements.venueDescription.textContent = venue.description;
-  elements.prospects.innerHTML = venue.prospects.filter((prospect) => !state.talking.includes(prospect.id)).map((prospect) => `<button class="prospect ${selectedProspect === prospect.id ? 'selected' : ''}" data-prospect="${prospect.id}" type="button"><span class="prospect-avatar ${prospect.style}" aria-hidden="true">${prospect.name[0]}</span><span><strong>${prospect.name}</strong><small>${prospect.detail}</small></span><span class="prospect-arrow" aria-hidden="true">→</span></button>`).join('');
+  elements.prospects.innerHTML = roster.prospects.filter((prospect) => !state.talking.includes(prospect.id)).map((prospect) => `<button class="prospect ${selectedProspect === prospect.id ? 'selected' : ''}" data-prospect="${prospect.id}" type="button"><span class="prospect-avatar ${prospect.style}" aria-hidden="true">${prospect.name[0]}</span><span><strong>${prospect.name}</strong><small>${prospect.detail}</small></span><span class="prospect-arrow" aria-hidden="true">→</span></button>`).join('');
   const interaction = selectedProspect ? getInteraction(selectedProspect) : null;
   const interest = interaction?.interest || 0;
   elements.interestMeter.innerHTML = Array.from({ length: 3 }, (_, index) => `<span class="${index < interest ? 'active' : ''}"></span>`).join('');
