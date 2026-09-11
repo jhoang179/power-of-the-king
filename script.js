@@ -99,6 +99,7 @@ const elements = {
   seanAttributes: document.querySelector('#sean-attributes'),
   snapchats: document.querySelector('#snapchats'),
   bodies: document.querySelector('#bodies'),
+  notesBodyCount: document.querySelector('#notes-body-count'),
   seanStolen: document.querySelector('#sean-stolen'),
   upgradePoints: document.querySelector('#upgrade-points'),
   rivalStatus: document.querySelector('#rival-status'),
@@ -232,6 +233,7 @@ function render() {
   elements.originButton.innerHTML = gameWon ? 'Play again <span aria-hidden="true">↗</span>' : state.originStage < 2 ? 'See what happens next <span aria-hidden="true">↗</span>' : 'Start Dylan\'s comeback <span aria-hidden="true">↗</span>';
   elements.snapchats.textContent = state.snapchats;
   elements.bodies.textContent = state.bodies;
+  elements.notesBodyCount.textContent = state.bodies;
   elements.seanStolen.textContent = state.seanStolen;
   elements.upgradePoints.textContent = state.upgradePoints;
   const venue = venues[selectedLocation];
