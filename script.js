@@ -304,7 +304,10 @@ function takeInterestAction(action) {
   const success = Math.random() < successChance;
   interaction.actionResults[action] = success;
   if (success) interaction.interest += 1;
-  addLog(`<strong>${findProspect(selectedProspect).name}:</strong> ${success ? actionDetails.success : actionDetails.failure} <em>${actionDetails.hint}</em>.`, success ? 'good' : 'bad');
+  const resultMessage = success
+    ? actionDetails.success
+    : `${actionDetails.failure} <em>${actionDetails.hint}</em>`;
+  addLog(`<strong>${findProspect(selectedProspect).name}:</strong> ${resultMessage}`, success ? 'good' : 'bad');
   render();
   saveState();
 }
