@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4efe5">
+  <title>Power of the King</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="game-shell">
+    <header class="masthead">
+      <div>
+        <p class="eyebrow">A social strategy game</p>
+        <h1>Power of the King</h1>
+      </div>
+      <button class="icon-button" id="reset-button" type="button" aria-label="Reset game" title="Reset game">↺</button>
+    </header>
+
+    <div class="rival-banner"><span class="rival-dot"></span>Sean is ready to pounce</div>
+
+    <section class="scoreboard" aria-label="Game progress">
+      <div>
+        <span class="label">Snapchats</span>
+        <strong id="snapchats">0</strong>
+      </div>
+      <div>
+        <span class="label">Bodies</span>
+        <strong id="bodies">0</strong>
+      </div>
+      <div>
+        <span class="label">Stolen by Sean</span>
+        <strong id="sean-stolen">0</strong>
+      </div>
+    </section>
+
+    <section class="section-block" aria-labelledby="attributes-heading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Build your edge</p>
+          <h2 id="attributes-heading">Dylan's Attributes</h2>
+        </div>
+        <span class="points-pill"><span id="upgrade-points">3</span> points</span>
+      </div>
+      <div class="attributes" id="attributes"></div>
+      <p class="attribute-limit-note">Dylan's Jawline and Abs can never quite reach Sean's level. They are out of this world.</p>
+      <p class="ability-note" id="ability-note"><strong>Dyl Trance Ability: unlocks at Pulling Technique 10/10.</strong> It doubles your success rate when asking for a Snapchat and showing interest in a Talking stage.</p>
+      <div class="sean-profile">
+        <div class="section-heading compact">
+          <div>
+            <p class="eyebrow">Locked rival profile</p>
+            <h3>Sean Power</h3>
+          </div>
+          <span class="rival-label">The benchmark</span>
+        </div>
+        <div class="attributes sean-attributes" id="sean-attributes"></div>
+      </div>
+    </section>
+
+    <section class="section-block map-section" aria-labelledby="map-heading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Explore the city</p>
+          <h2 id="map-heading">Where are you going?</h2>
+        </div>
+      </div>
+      <nav class="venue-nav" aria-label="Locations">
+        <button class="venue-button active" data-location="rooftop" type="button">Rooftop</button>
+        <button class="venue-button" data-location="cafe" type="button">Café</button>
+        <button class="venue-button" data-location="arcade" type="button">Arcade</button>
+        <button class="venue-button" data-location="gallery" type="button">Gallery</button>
+      </nav>
+      <div class="map-card">
+        <div class="map-card-heading">
+          <div><span class="eyebrow" id="venue-name">Rooftop</span><p id="venue-description">Music, city lights, and a loose circle of new people.</p></div>
+          <span class="map-pin" aria-hidden="true">●</span>
+        </div>
+        <div class="prospects" id="prospects" aria-live="polite"></div>
+      </div>
+      <div class="snapchat-panel">
+        <div>
+          <p class="eyebrow">Make a move</p>
+          <p id="selection-status">Choose someone to approach.</p>
+        </div>
+        <button class="snapchat-button" id="snapchat-button" type="button" disabled>Ask for Snapchat <span aria-hidden="true">↗</span></button>
+      </div>
+    </section>
+
+    <section class="section-block talking-section" aria-labelledby="talking-heading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">The next stage</p>
+          <h2 id="talking-heading">Talking Stage</h2>
+        </div>
+        <span class="rival-label"><span class="rival-dot"></span>Show interest to compete</span>
+      </div>
+      <div class="talking-list" id="talking-list" aria-live="polite"></div>
+    </section>
+
+    <section class="log-panel" aria-labelledby="log-heading">
+      <div class="section-heading compact">
+        <h2 id="log-heading">Tonight's Notes</h2>
+      </div>
+      <ol id="event-log" class="event-log" aria-live="polite"></ol>
+    </section>
+
+  </main>
+  <div class="event-modal-backdrop" id="event-modal" role="presentation">
+    <section class="event-modal" role="dialog" aria-modal="true" aria-labelledby="event-modal-title">
+      <div class="event-modal-topline"><span class="eyebrow" id="event-modal-kicker">The origin story</span><span class="event-count" id="event-count">1 / 2</span></div>
+      <p class="event-date" id="event-modal-date">New Year's Eve</p>
+      <h2 id="event-modal-title">The countdown is on.</h2>
+      <p id="event-modal-copy">Dylan spots Sophia across the party. Before he can make his move, Sean swoops in and steals the moment.</p>
+      <div class="event-modal-result" id="event-modal-result">Sean gets there first.</div>
+      <button class="origin-button" id="origin-button" type="button">See what happens next <span aria-hidden="true">↗</span></button>
+    </section>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
