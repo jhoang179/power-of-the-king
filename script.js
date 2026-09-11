@@ -287,7 +287,8 @@ function askForSnapchat() {
   if (success) {
     if (!state.talking.includes(prospect.id)) state.talking.push(prospect.id);
     state.snapchats += 1;
-    addLog(`<strong>Snapchat secured:</strong> ${prospect.name} is now in the talking phase. Keep the conversation going.`, 'good');
+    state.upgradePoints += 1;
+    addLog(`<strong>Snapchat secured:</strong> ${prospect.name} is now in the talking phase. You earned 1 Upgrade Point. Spend it on Dylan's Attributes.`, 'good');
   } else {
     const replacement = rotateProspect(prospect.id);
     addLog(`<strong>No Snapchat:</strong> ${prospect.name} is not feeling the approach. ${replacement.name} takes her place.`, 'bad');
