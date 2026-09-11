@@ -70,6 +70,7 @@ const elements = {
   bodies: document.querySelector('#bodies'),
   seanStolen: document.querySelector('#sean-stolen'),
   upgradePoints: document.querySelector('#upgrade-points'),
+  rivalStatus: document.querySelector('#rival-status'),
   eventLog: document.querySelector('#event-log'),
   eventModal: document.querySelector('#event-modal'),
   eventModalKicker: document.querySelector('#event-modal-kicker'),
@@ -113,6 +114,13 @@ function saveState() {
 }
 
 function render() {
+  const attributesAtFive = Object.values(state.attributes).every((value) => value >= 5);
+  const rivalStatus = state.attributes.technique === 10
+    ? 'Sean is worried'
+    : attributesAtFive
+      ? 'Sean is getting nervous'
+      : 'Sean is ready to pounce';
+  elements.rivalStatus.textContent = rivalStatus;
   const originEvents = [
     {
       date: "Sean's Big Day",
