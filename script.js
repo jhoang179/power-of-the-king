@@ -316,7 +316,7 @@ function askForSnapchat() {
   const interaction = getInteraction(selectedProspect);
   if (!prospect || interaction.used.length < 3) return;
   const successfulActions = Object.values(interaction.actionResults).filter(Boolean).length;
-  const snapchatChances = [0.2, 0.33, 0.5, 0.75];
+  const snapchatChances = [0.1, 0.20, 0.33, 0.5];
   const success = Math.random() < Math.min(1, snapchatChances[successfulActions] * (state.attributes.technique === 10 ? 2 : 1));
 
   if (success) {
@@ -338,7 +338,7 @@ function showInterest(prospectId) {
   const prospect = findProspect(prospectId);
   if (!prospect || !state.talking.includes(prospectId)) return;
   const averageAttribute = Object.values(state.attributes).reduce((total, value) => total + value, 0) / 3;
-  const inviteChance = Math.min(0.95, Math.max(0.15, averageAttribute / 9));
+  const inviteChance = Math.min(0.95, Math.max(0.1, averageAttribute / 10));
   const success = Math.random() < Math.min(1, inviteChance * (state.attributes.technique === 10 ? 2 : 1));
 
   state.talking = state.talking.filter((id) => id !== prospectId);
@@ -404,7 +404,7 @@ elements.snapchatButton.addEventListener('click', askForSnapchat);
 
 elements.talkingList.addEventListener('click', (event) => {
   const button = event.target.closest('[data-interest]');
-  if (button) showInterest(button.dataset.interest);
+  if (button) inviteOver(button.dataset.interest);
 });
 
 elements.originButton.addEventListener('click', () => {
