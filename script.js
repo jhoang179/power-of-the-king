@@ -353,7 +353,7 @@ function showInterest(prospectId) {
     state.upgradePoints += 1;
     const replacement = rotateProspect(prospect.id) || createReplacement();
     if (!findVenueForProspect(replacement.id)) state.roster[selectedLocation].prospects.push(replacement);
-    addLog(`<strong>Body secured:</strong> ${prospect.name} chooses to keep seeing you. ${replacement.name} takes her place as a prospect.`, 'good');
+    addLog(`<strong>Body secured:</strong> ${prospect.name} told you you're 10x bigger than the last one. ${replacement.name} takes her place as a prospect.`, 'good');
   } else {
     state.seanStolen += 1;
     const replacement = rotateProspect(prospect.id);
