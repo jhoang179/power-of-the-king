@@ -91,7 +91,8 @@ h2 { margin-bottom: 0; font-size: 1.3rem; letter-spacing: -.035em; }
 #selection-status { color: #d5ddd5; font-size: 13px; }
 .interest-meter { display: flex; gap: 5px; margin-top: 12px; }
 .interest-meter span { width: 38px; height: 6px; background: rgba(213, 221, 213, .28); }
-.interest-meter span.active { background: var(--yellow); }
+.interest-meter span.success { background: #67b587; }
+.interest-meter span.failure { background: #e27c6b; }
 .interest-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; flex: 1; }
 .interest-actions[hidden] { display: none; }
 .interest-action { padding: 9px 8px; border: 1px solid rgba(213, 221, 213, .45); color: #f9f6ed; background: transparent; cursor: pointer; font-size: 11px; }

@@ -238,17 +238,22 @@ function render() {
   elements.prospects.innerHTML = roster.prospects.filter((prospect) => !state.talking.includes(prospect.id)).map((prospect) => `<button class="prospect ${selectedProspect === prospect.id ? 'selected' : ''}" data-prospect="${prospect.id}" type="button"><span class="prospect-avatar ${prospect.style}" aria-hidden="true">${prospect.name[0]}</span><span><strong>${prospect.name}</strong><small>${prospect.detail}</small></span><span class="prospect-arrow" aria-hidden="true">→</span></button>`).join('');
   const interaction = selectedProspect ? getInteraction(selectedProspect) : null;
   const interest = interaction?.interest || 0;
-  elements.interestMeter.innerHTML = Array.from({ length: 3 }, (_, index) => `<span class="${index < interest ? 'active' : ''}"></span>`).join('');
-  elements.interestActions.hidden = !selectedProspect || interest >= 3;
+  const actionOrder = ['jawline', 'abs', 'technique'];
+  elements.interestMeter.innerHTML = actionOrder.map((action) => {
+    const result = interaction?.actionResults?.[action];
+    const resultClass = result === true ? 'success' : result === false ? 'failure' : 'pending';
+    return `<span class="${resultClass}" aria-label="${result === true ? 'Successful' : result === false ? 'Failed' : 'Not attempted'}"></span>`;
+  }).join('');
+  elements.interestActions.hidden = !selectedProspect || interaction.used.length >= 3;
   elements.interestActions.querySelectorAll('[data-action]').forEach((button) => {
-    button.disabled = !selectedProspect || interest >= 3 || interaction.used.includes(button.dataset.action);
+    button.disabled = !selectedProspect || interaction.used.length >= 3 || interaction.used.includes(button.dataset.action);
   });
-  elements.snapchatButton.disabled = !selectedProspect || interest < 3;
+  elements.snapchatButton.disabled = !selectedProspect || interaction.used.length < 3;
   const talkingProspects = state.talking.map((id) => findProspect(id)).filter(Boolean);
   elements.talkingList.innerHTML = talkingProspects.length ? talkingProspects.map((prospect) => `<article class="talking-card"><span class="prospect-avatar ${prospect.style}" aria-hidden="true">${prospect.name[0]}</span><div><strong>${prospect.name}</strong><small>${prospect.detail}</small></div><button class="interest-button" data-interest="${prospect.id}" type="button">Show interest <span aria-hidden="true">↗</span></button></article>`).join('') : '<p class="talking-empty">No one is in the talking phase yet. Ask for a Snapchat to start something.</p>';
   document.querySelectorAll('[data-location]').forEach((button) => button.classList.toggle('active', button.dataset.location === selectedLocation));
   elements.selectionStatus.textContent = selectedProspect
-    ? interest >= 3 ? 'Interest is full. Ask for her Snapchat.' : `Build interest: ${interest}/3`
+    ? interaction.used.length >= 3 ? `Conversation complete: ${interest}/3 checks passed. Ask for her Snapchat.` : `Build interest: ${interest}/3`
     : 'Choose someone to approach.';
   elements.attributes.innerHTML = renderAttributes(state.attributes, true);
   elements.seanAttributes.innerHTML = renderAttributes(seanAttributes, false);
@@ -283,9 +288,9 @@ function rollSuccess(score, threshold, spread) {
 }
 
 const interactionDetails = {
-  jawline: { label: 'Jawline', success: 'Dylan makes a strong first impression.', failure: 'Dylan tries to make a strong first impression, but it does not quite land.' },
-  abs: { label: 'Abs', success: 'Dylan projects quiet confidence and holds her attention.', failure: 'Dylan projects confidence, but it comes across a little forced.' },
-  technique: { label: 'Pulling Technique', success: 'Dylan asks a thoughtful question and keeps the conversation moving.', failure: 'Dylan asks a thoughtful question, but the conversation stalls.' }
+  jawline: { success: 'Dylan introduces himself with a very strong first impression.', failure: 'Dylan introduces himself, but the first impression does not quite land.', hint: 'If only his jawline was more chiseled...' },
+  abs: { success: 'Dylan asks a thoughtful question, showing off his deep side.', failure: 'Dylan asks a thoughtful question, but it comes across a little forced.', hint: 'If only his abs were harder...' },
+  technique: { success: 'Dylan tells a funny joke and keeps the conversation flowing.', failure: 'Dylan tells a joke, but she doesn\'t even crack a smile.', hint: 'His friends make fun of his pulling technique...' }
 };
 
 function takeInterestAction(action) {
@@ -299,7 +304,7 @@ function takeInterestAction(action) {
   const success = Math.random() < successChance;
   interaction.actionResults[action] = success;
   if (success) interaction.interest += 1;
-  addLog(`<strong>${findProspect(selectedProspect).name}:</strong> ${success ? actionDetails.success : actionDetails.failure} <em>${actionDetails.label} check ${success ? 'passed' : 'failed'}.</em>`, success ? 'good' : 'bad');
+  addLog(`<strong>${findProspect(selectedProspect).name}:</strong> ${success ? actionDetails.success : actionDetails.failure} <em>${actionDetails.hint}</em>.`, success ? 'good' : 'bad');
   render();
   saveState();
 }
@@ -307,7 +312,7 @@ function takeInterestAction(action) {
 function askForSnapchat() {
   const prospect = findProspect(selectedProspect);
   const interaction = getInteraction(selectedProspect);
-  if (!prospect || interaction.interest < 3) return;
+  if (!prospect || interaction.used.length < 3) return;
   const successfulActions = Object.values(interaction.actionResults).filter(Boolean).length;
   const snapchatChances = [0.2, 0.42, 0.68, 0.9];
   const success = Math.random() < Math.min(1, snapchatChances[successfulActions] * (state.attributes.technique === 10 ? 2 : 1));
