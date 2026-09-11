@@ -70,7 +70,6 @@ const elements = {
   bodies: document.querySelector('#bodies'),
   seanStolen: document.querySelector('#sean-stolen'),
   upgradePoints: document.querySelector('#upgrade-points'),
-  abilityNote: document.querySelector('#ability-note'),
   eventLog: document.querySelector('#event-log'),
   eventModal: document.querySelector('#event-modal'),
   eventModalKicker: document.querySelector('#event-modal-kicker'),
@@ -116,14 +115,14 @@ function saveState() {
 function render() {
   const originEvents = [
     {
-      date: "New Year's Eve party",
-      title: 'The countdown is on.',
+      date: "Sean's Big Day",
+      title: "New Year's Eve Party",
       copy: 'Dylan spots Sophia across the party. Before he can make his move, Sean sweeps in and steals the moment.',
       result: 'Sean steals Sophia.'
     },
     {
-      date: "Bonfire at Sean's house",
-      title: 'The fire burns brighter.',
+      date: "Sleepover at Sean's",
+      title: "Bonfire at Sean's House",
       copy: 'A week later, Dylan connects with Lexie by the bonfire. Sean sees the opening and takes over the conversation.',
       result: 'Sean steals Lexie.'
     }
@@ -150,11 +149,6 @@ function render() {
   elements.talkingList.innerHTML = talkingProspects.length ? talkingProspects.map((prospect) => `<article class="talking-card"><span class="prospect-avatar ${prospect.style}" aria-hidden="true">${prospect.name[0]}</span><div><strong>${prospect.name}</strong><small>${prospect.detail}</small></div><button class="interest-button" data-interest="${prospect.id}" type="button">Show interest <span aria-hidden="true">↗</span></button></article>`).join('') : '<p class="talking-empty">No one is in the talking phase yet. Ask for a Snapchat to start something.</p>';
   document.querySelectorAll('[data-location]').forEach((button) => button.classList.toggle('active', button.dataset.location === selectedLocation));
   elements.attributes.innerHTML = renderAttributes(state.attributes, true);
-  const tranceUnlocked = state.attributes.technique === 10;
-  elements.abilityNote.hidden = false;
-  elements.abilityNote.innerHTML = tranceUnlocked
-    ? '<strong>Dyl Trance unlocked.</strong> Your success rate in Snapchat and Talking is doubled.'
-    : '<strong>Dyl Trance unlocks at Pulling Technique 10/10.</strong> When unlocked, it doubles your success rate in Snapchat and Talking.';
   elements.seanAttributes.innerHTML = renderAttributes(seanAttributes, false);
   elements.eventLog.innerHTML = state.log.map((entry) => `<li>${entry}</li>`).join('');
 }
@@ -165,7 +159,10 @@ function renderAttributes(attributes, canUpgrade) {
     const maximum = canUpgrade && key !== 'technique' ? 9 : 10;
     const segments = Array.from({ length: maximum }, (_, index) => `<i class="${index < value ? 'active' : ''}"></i>`).join('');
     const upgradeButton = canUpgrade ? `<button class="upgrade-button" data-attribute="${key}" type="button" ${state.upgradePoints === 0 || value >= maximum ? 'disabled' : ''}>Upgrade +1</button>` : '<span class="locked-stat">Locked</span>';
-    return `<article class="attribute"><div class="attribute-top"><span class="attribute-name">${detail.label}</span><span class="attribute-value">${value}/${maximum}</span></div><div class="meter" aria-label="${detail.label}: ${value} out of ${maximum}">${segments}</div>${upgradeButton}</article>`;
+    const abilityNote = canUpgrade && key === 'technique'
+      ? `<p class="ability-note"><strong>${value === 10 ? 'Dyl Trance unlocked.' : 'Dyl Trance Ability:'}</strong> ${value === 10 ? 'Your success rate in Snapchat and Talking is doubled.' : 'When unlocked, it doubles your success rate asking for a Snapchat and showing interest in a Talking Stage. Unlocks at 10/10 Pulling Technique.'}</p>`
+      : '';
+    return `<article class="attribute"><div class="attribute-top"><span class="attribute-name">${detail.label}</span><span class="attribute-value">${value}/${maximum}</span></div><div class="meter" aria-label="${detail.label}: ${value} out of ${maximum}">${segments}</div>${upgradeButton}${abilityNote}</article>`;
   }).join('');
 }
 
