@@ -9,32 +9,32 @@ const attributeDetails = {
 const seanAttributes = { jawline: 10, abs: 10, technique: 9 };
 
 const venues = {
-  rooftop: {
-    name: 'Rooftop',
+  houseParty: {
+    name: 'House Party',
     description: 'Music, city lights, and a loose circle of new people.',
     prospects: [
       { id: 'hannah', name: 'Hannah', detail: 'PHD Student · affinity for the arts', style: 'coral' },
       { id: 'leah', name: 'Leah', detail: 'Nurse · intelligence of a pig', style: 'yellow' }
     ]
   },
-  cafe: {
-    name: 'Café',
+  elicit: {
+    name: 'Elicit',
     description: 'A bright neighborhood spot where conversation comes easy.',
     prospects: [
-      { id: 'sierra', name: 'Sierra', detail: 'Insurance Agent · never been rejected', style: 'sage' },
-      { id: 'ashley', name: 'Ashley', detail: 'HR · home body', style: 'blue' }
+      { id: 'j han', name: 'J Han', detail: 'Highschool Student · loves iced coffee', style: 'blue' },
+      { id: 'j fran', name: 'J Fran', detail: 'Highschool Student · inspired the classic "Donkey Kong Love Song"', style: 'coral' }
     ]
   },
-  arcade: {
-    name: 'Arcade',
+  oakStreet: {
+    name: 'Oak Street',
     description: 'Friendly competition, loud games, and instant icebreakers.',
     prospects: [
-      { id: 'julia', name: 'Julia', detail: 'Game designer · undefeated at pinball', style: 'blue' },
-      { id: 'jackie', name: 'Jackie', detail: 'Musician · has excellent taste', style: 'coral' }
+      { id: 'sierra', name: 'Sierra', detail: 'Insurance Agent · never been rejected', style: 'sage' },
+      { id: 'leah', name: 'Leah', detail: 'HR · home body', style: 'blue' }
     ]
   },
-  gallery: {
-    name: 'Gallery',
+  coEdSoccer: {
+    name: 'Co-Ed Soccer',
     description: 'A quiet opening full of strange art and strong opinions.',
     prospects: [
       { id: 'ava', name: 'Ava', detail: 'Curator · asks thoughtful questions', style: 'yellow' },
@@ -43,13 +43,23 @@ const venues = {
   }
 };
 
-const replacementNames = ['Camille', 'Dani', 'Erin', 'Jade', 'Kenzie', 'Morgan', 'Riley', 'Taylor', 'Valerie', 'Whitney'];
+const replacementNames = ['Camille', 'Dani', 'Erin', 'Jade', 'Kenzie', 'Morgan', 'Riley', 'Taylor', 'Valerie', 'Whitney', 'Alexis', 'Brielle', 'Casey', 'Devon', 'Emerson', 'Hailey', 'Jordan', 'Maya', 'Noelle', 'Sloane'];
 const replacementDetails = [
   'Creative · always has a story',
   'Designer · quick with a comeback',
   'Researcher · notices the little things',
   'Entrepreneur · impossible to bore',
-  'Photographer · sees the room differently'
+  'Photographer · sees the room differently',
+  'Musician · knows every word to the chorus',
+  'Film student · has a strong opinion about endings',
+  'Runner · brings unstoppable energy',
+  'Chef · turns every hangout into a feast',
+  'Writer · collects perfectly timed observations',
+  'Architect · sketches ideas on every napkin',
+  'Barista · remembers everyone\'s usual order',
+  'Game designer · makes competition feel fun',
+  'Volunteer · somehow knows everyone in town',
+  'Bookstore clerk · recommends a great read'
 ];
 
 function createInitialRoster() {
@@ -81,7 +91,7 @@ const defaultState = {
 };
 
 let state = loadState();
-let selectedLocation = 'rooftop';
+let selectedLocation = 'houseParty';
 let selectedProspect = null;
 
 const elements = {
@@ -181,7 +191,8 @@ function rotateProspect(prospectId) {
 }
 
 function getInteraction(prospectId) {
-  if (!state.interactions[prospectId]) state.interactions[prospectId] = { interest: 0, used: [] };
+  if (!state.interactions[prospectId]) state.interactions[prospectId] = { interest: 0, used: [], actionResults: {} };
+  state.interactions[prospectId].actionResults ??= {};
   return state.interactions[prospectId];
 }
 
@@ -272,18 +283,23 @@ function rollSuccess(score, threshold, spread) {
 }
 
 const interactionDetails = {
-  question: 'Dylan asks a thoughtful question and keeps the conversation moving.',
-  humor: 'Dylan finds a shared joke and gets her laughing.',
-  confidence: 'Dylan brings confident energy without forcing the moment.'
+  jawline: { label: 'Jawline', success: 'Dylan makes a strong first impression.', failure: 'Dylan tries to make a strong first impression, but it does not quite land.' },
+  abs: { label: 'Abs', success: 'Dylan projects quiet confidence and holds her attention.', failure: 'Dylan projects confidence, but it comes across a little forced.' },
+  technique: { label: 'Pulling Technique', success: 'Dylan asks a thoughtful question and keeps the conversation moving.', failure: 'Dylan asks a thoughtful question, but the conversation stalls.' }
 };
 
 function takeInterestAction(action) {
-  if (!selectedProspect || !interactionDetails[action]) return;
+  const actionDetails = interactionDetails[action];
+  if (!selectedProspect || !actionDetails) return;
   const interaction = getInteraction(selectedProspect);
   if (interaction.used.includes(action) || interaction.interest >= 3) return;
   interaction.used.push(action);
-  interaction.interest += 1;
-  addLog(`<strong>${findProspect(selectedProspect).name}:</strong> ${interactionDetails[action]}`);
+  const attributeValue = state.attributes[action];
+  const successChance = Math.min(1, Math.max(0, (attributeValue + 6 - 4.5) / 6));
+  const success = Math.random() < successChance;
+  interaction.actionResults[action] = success;
+  if (success) interaction.interest += 1;
+  addLog(`<strong>${findProspect(selectedProspect).name}:</strong> ${success ? actionDetails.success : actionDetails.failure} <em>${actionDetails.label} check ${success ? 'passed' : 'failed'}.</em>`, success ? 'good' : 'bad');
   render();
   saveState();
 }
@@ -292,8 +308,9 @@ function askForSnapchat() {
   const prospect = findProspect(selectedProspect);
   const interaction = getInteraction(selectedProspect);
   if (!prospect || interaction.interest < 3) return;
-  const score = Object.values(state.attributes).reduce((total, value) => total + value, 0) / 3;
-  const success = rollSuccess(score, 4.5, 3);
+  const successfulActions = Object.values(interaction.actionResults).filter(Boolean).length;
+  const snapchatChances = [0.2, 0.42, 0.68, 0.9];
+  const success = Math.random() < Math.min(1, snapchatChances[successfulActions] * (state.attributes.technique === 10 ? 2 : 1));
 
   if (success) {
     if (!state.talking.includes(prospect.id)) state.talking.push(prospect.id);
@@ -393,7 +410,7 @@ elements.originButton.addEventListener('click', () => {
 
 document.querySelector('#reset-button').addEventListener('click', () => {
   state = structuredClone(defaultState);
-  selectedLocation = 'rooftop';
+  selectedLocation = 'houseParty';
   selectedProspect = null;
   render();
   saveState();
