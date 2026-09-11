@@ -208,13 +208,13 @@ function render() {
     {
       date: "Sean's Big Day",
       title: "New Year's Eve Party",
-      copy: 'Dylan spots Sophia across the party. Before he can make his move, Sean sweeps in and steals the moment.',
+      copy: 'Dylan spots Sophia across the party. Before he can make his move, Sean swoops in and steals the moment.',
       result: 'Sean steals Sophia.'
     },
     {
       date: "Sleepover at Sean's",
       title: "Bonfire at Sean's House",
-      copy: 'A week later, Dylan connects with Lexie by the bonfire. Sean sees the opening and takes over the conversation.',
+      copy: 'A week later, Dylan connects with Lexie by the bonfire. Sean sees his opening and takes over the conversation.',
       result: 'Sean steals Lexie.'
     }
   ];
@@ -223,8 +223,8 @@ function render() {
   elements.eventModalKicker.textContent = state.originStage < 2 ? 'The origin story' : 'The comeback begins';
   elements.eventCount.textContent = state.originStage < 2 ? `${state.originStage + 1} / 2` : '2 / 2';
   elements.eventModalDate.textContent = state.originStage < 2 ? originEvent.date : 'Your turn';
-  elements.eventModalTitle.textContent = state.originStage < 2 ? originEvent.title : 'No more easy wins for Sean.';
-  elements.eventModalCopy.textContent = state.originStage < 2 ? originEvent.copy : "Sophia and Lexie are gone, but Dylan is done watching Sean win. Upgrade Dylan's Attributes so this never happens again.";
+  elements.eventModalTitle.textContent = state.originStage < 2 ? originEvent.title : 'Sean will rue the day.';
+  elements.eventModalCopy.textContent = state.originStage < 2 ? originEvent.copy : "Sophia and Lexie are gone, but Dylan has had enough. Upgrade Dylan's attributes so this never happens again.";
   elements.eventModalResult.textContent = state.originStage < 2 ? originEvent.result : 'Get your revenge.';
   elements.originButton.innerHTML = state.originStage < 2 ? 'See what happens next <span aria-hidden="true">↗</span>' : 'Start Dylan\'s comeback <span aria-hidden="true">↗</span>';
   elements.snapchats.textContent = state.snapchats;
