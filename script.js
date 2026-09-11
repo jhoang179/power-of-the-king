@@ -14,7 +14,7 @@ const venues = {
     description: 'Music, city lights, and a loose circle of new people.',
     prospects: [
       { id: 'hannah', name: 'Hannah', detail: 'PHD Student · affinity for the arts', style: 'coral' },
-      { id: 'leah', name: 'Leah', detail: 'Nurse · intelligence of a pig', style: 'yellow' }
+      { id: 'leah s', name: 'Leah S', detail: 'Nurse · intelligence of a pig', style: 'yellow' }
     ]
   },
   elicit: {
