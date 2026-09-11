@@ -303,7 +303,8 @@ function takeInterestAction(action) {
   if (interaction.used.includes(action) || interaction.interest >= 3) return;
   interaction.used.push(action);
   const attributeValue = state.attributes[action];
-  const successChance = Math.min(1, Math.max(0, (attributeValue + 6 - 4.5) / 6));
+  const attributeMaximum = action === 'technique' ? 10 : 9;
+  const successChance = Math.min(0.95, Math.max(0, attributeValue / attributeMaximum));
   const success = Math.random() < successChance;
   interaction.actionResults[action] = success;
   if (success) interaction.interest += 1;
