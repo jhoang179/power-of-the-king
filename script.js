@@ -213,7 +213,7 @@ function render() {
   const venue = state.roster[selectedLocation];
   elements.venueName.textContent = venue.name;
   elements.venueDescription.textContent = venue.description;
-  elements.prospects.innerHTML = venue.prospects.map((prospect) => `<button class="prospect ${selectedProspect === prospect.id ? 'selected' : ''}" data-prospect="${prospect.id}" type="button"><span class="prospect-avatar ${prospect.style}" aria-hidden="true">${prospect.name[0]}</span><span><strong>${prospect.name}</strong><small>${prospect.detail}</small></span><span class="prospect-arrow" aria-hidden="true">→</span></button>`).join('');
+  elements.prospects.innerHTML = venue.prospects.filter((prospect) => !state.talking.includes(prospect.id)).map((prospect) => `<button class="prospect ${selectedProspect === prospect.id ? 'selected' : ''}" data-prospect="${prospect.id}" type="button"><span class="prospect-avatar ${prospect.style}" aria-hidden="true">${prospect.name[0]}</span><span><strong>${prospect.name}</strong><small>${prospect.detail}</small></span><span class="prospect-arrow" aria-hidden="true">→</span></button>`).join('');
   const interaction = selectedProspect ? getInteraction(selectedProspect) : null;
   const interest = interaction?.interest || 0;
   elements.interestMeter.innerHTML = Array.from({ length: 3 }, (_, index) => `<span class="${index < interest ? 'active' : ''}"></span>`).join('');
@@ -287,8 +287,7 @@ function askForSnapchat() {
   if (success) {
     if (!state.talking.includes(prospect.id)) state.talking.push(prospect.id);
     state.snapchats += 1;
-    const replacement = rotateProspect(prospect.id);
-    addLog(`<strong>Snapchat secured:</strong> ${prospect.name} is now in the talking phase. ${replacement.name} takes her place on the map.`, 'good');
+    addLog(`<strong>Snapchat secured:</strong> ${prospect.name} is now in the talking phase. Keep the conversation going.`, 'good');
   } else {
     const replacement = rotateProspect(prospect.id);
     addLog(`<strong>No Snapchat:</strong> ${prospect.name} is not feeling the approach. ${replacement.name} takes her place.`, 'bad');
@@ -310,8 +309,9 @@ function showInterest(prospectId) {
   if (success) {
     state.bodies += 1;
     state.upgradePoints += 1;
-    const replacement = rotateProspect(prospect.id);
-    addLog(`<strong>Body secured:</strong> ${prospect.name} chooses to keep seeing you. ${replacement.name} takes her place on the map.`, 'good');
+    const replacement = rotateProspect(prospect.id) || createReplacement();
+    if (!findVenueForProspect(replacement.id)) state.roster[selectedLocation].prospects.push(replacement);
+    addLog(`<strong>Body secured:</strong> ${prospect.name} chooses to keep seeing you. ${replacement.name} takes her place as a prospect.`, 'good');
   } else {
     state.seanStolen += 1;
     const replacement = rotateProspect(prospect.id);
