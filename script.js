@@ -197,8 +197,12 @@ function getInteraction(prospectId) {
   return state.interactions[prospectId];
 }
 
+function isGameWon() {
+  return state.bodies >= 3 && state.bodies > state.seanStolen;
+}
+
 function render() {
-  const gameWon = state.bodies > state.seanStolen;
+  const gameWon = isGameWon();
   const attributesAtFive = Object.values(state.attributes).every((value) => value >= 5);
   const rivalStatus = gameWon
     ? 'Dylan beat Sean'
@@ -294,7 +298,7 @@ const interactionDetails = {
 
 function takeInterestAction(action) {
   const actionDetails = interactionDetails[action];
-  if (state.bodies > state.seanStolen || !selectedProspect || !actionDetails) return;
+  if (isGameWon() || !selectedProspect || !actionDetails) return;
   const interaction = getInteraction(selectedProspect);
   if (interaction.used.includes(action) || interaction.interest >= 3) return;
   interaction.used.push(action);
@@ -313,7 +317,7 @@ function takeInterestAction(action) {
 }
 
 function askForSnapchat() {
-  if (state.bodies > state.seanStolen) return;
+  if (isGameWon()) return;
   const prospect = findProspect(selectedProspect);
   const interaction = getInteraction(selectedProspect);
   if (!prospect || interaction.used.length < 3) return;
@@ -336,7 +340,7 @@ function askForSnapchat() {
 }
 
 function inviteOver(prospectId) {
-  if (state.bodies > state.seanStolen) return;
+  if (isGameWon()) return;
   const prospect = findProspect(prospectId);
   if (!prospect || !state.talking.includes(prospectId)) return;
   const averageAttribute = Object.values(state.attributes).reduce((total, value) => total + value, 0) / 3;
@@ -360,7 +364,7 @@ function inviteOver(prospectId) {
 }
 
 elements.attributes.addEventListener('click', (event) => {
-  if (state.bodies > state.seanStolen) return;
+  if (isGameWon()) return;
   const button = event.target.closest('[data-attribute]');
   if (!button || state.upgradePoints === 0) return;
   const attribute = button.dataset.attribute;
@@ -379,7 +383,7 @@ elements.attributes.addEventListener('click', (event) => {
 
 document.querySelectorAll('[data-location]').forEach((button) => {
   button.addEventListener('click', () => {
-    if (state.bodies > state.seanStolen) return;
+    if (isGameWon()) return;
     selectedLocation = button.dataset.location;
     selectedProspect = null;
     elements.selectionStatus.textContent = 'Choose someone to approach.';
@@ -388,7 +392,7 @@ document.querySelectorAll('[data-location]').forEach((button) => {
 });
 
 elements.prospects.addEventListener('click', (event) => {
-  if (state.bodies > state.seanStolen) return;
+  if (isGameWon()) return;
   const prospect = event.target.closest('[data-prospect]');
   if (!prospect) return;
   selectedProspect = prospect.dataset.prospect;
@@ -410,7 +414,7 @@ elements.talkingList.addEventListener('click', (event) => {
 });
 
 elements.originButton.addEventListener('click', () => {
-  if (state.bodies > state.seanStolen) {
+  if (isGameWon()) {
     resetGame();
     return;
   }
