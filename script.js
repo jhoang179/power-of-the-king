@@ -275,7 +275,7 @@ function renderAttributes(attributes, canUpgrade) {
       ? `<div class="ability-note"><strong>${detail.label} Limit</strong><ul><li>Dylan cannot reach 10/10.</li><li>Sean's ${detail.label} ${key === 'abs' ? 'are' : 'is'} out of this world.</li></ul></div>`
       : '';
     const abilityNote = canUpgrade && key === 'technique'
-      ? `<div class="ability-note"><strong>${value === 10 ? 'Dyl Trance unlocked.' : 'Dyl Trance Ability:'}</strong><ul><li>When unlocked, it doubles your success rate asking for a Snapchat and showing interest in a Talking Stage.</li><li>Unlocks at 10/10 Pulling Technique.</li></ul></div>`
+      ? `<div class="ability-note"><strong>${value === 10 ? 'Dyl Trance unlocked.' : 'Dyl Trance Ability:'}</strong><ul><li>When unlocked, it doubles your success rate asking for a Snapchat and inviting a girl over.</li><li>Unlocks at 10/10 Pulling Technique.</li></ul></div>`
       : '';
     return `<article class="attribute"><div class="attribute-top"><span class="attribute-name">${detail.label}</span><span class="attribute-value">${value}/${maximum}</span></div><div class="meter" aria-label="${detail.label}: ${value} out of ${maximum}">${segments}</div>${upgradeButton}${limitNote}${abilityNote}</article>`;
   }).join('');
